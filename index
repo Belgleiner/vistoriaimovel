@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auto de Vistoria - Belizza Araújo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Satisfy&family=Inter:wght@300;400;500;600&display=swap');
+        :root { --rosa: #b76e79; --rosa-claro: #fdf7fa; --rosa-medio: #d88fa0; --cinza: #5d6d7e; --borda: #ece0e2; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--rosa-claro); color: #333; margin: 0; padding: 10px; }
+        .container { background: #fff; width: 100%; max-width: 650px; margin: 0 auto; padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(183,110,121,0.1); box-sizing: border-box; }
+        header { text-align: center; margin-bottom: 25px; }
+        .nome-topo { font-family: 'Satisfy', cursive; font-size: 2.2em; color: var(--rosa); margin: 0; }
+        .cargo { font-size: 0.65em; letter-spacing: 3px; color: #a0a0a0; text-transform: uppercase; font-weight: 600; }
+        .card { display: none; animation: fadeIn 0.4s ease; }
+        .card.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        h2 { font-size: 0.9em; color: var(--rosa); text-transform: uppercase; margin: 30px 0 15px; border-left: 4px solid var(--rosa-medio); padding-left: 10px; }
+        h3 { font-size: 0.8em; color: var(--rosa-medio); margin-top: 25px; border-bottom: 1px solid #f8f8f8; padding-bottom: 5px; }
+        label { display: block; font-size: 0.75em; font-weight: 600; color: var(--cinza); margin: 15px 0 5px; }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--borda); box-sizing: border-box; font-size: 16px; background: #fcfcfc; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .check-box { display: flex; align-items: center; gap: 10px; background: #fff; padding: 12px; border-radius: 10px; border: 1px solid var(--borda); margin-top: 5px; font-size: 0.85em; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rosa); cursor: pointer; }
+        button { border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-prox { background: var(--rosa-medio); color: white; padding: 18px; flex: 2; }
+        .btn-volt { background: #f1f1f1; color: #888; padding: 18px; flex: 1; }
+        .btn-gps { background: #546e7a; color: white; width: 100%; padding: 10px; font-size: 0.75em; margin-bottom: 10px; }
+        .nav-box { display: flex; gap: 10px; margin-top: 30px; }
+        .canvas-sig { border: 2px dashed var(--borda); border-radius: 15px; background: #fff; width: 100%; height: 150px; touch-action: none; }
+        .export-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 25px; }
+        .btn-exp { padding: 16px; border-radius: 12px; color: white; text-decoration: none; text-align: center; font-weight: 600; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .hidden-input { display: none; margin-top: 8px; }
+        @media print { .nav-box, .btn-gps, .export-grid, button { display: none !important; } .card { display: block !important; } .container { box-shadow: none; max-width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <p class="nome-topo">Belizza Araújo</p>
+        <p class="cargo">Oficiala de Justiça Avaliadora</p>
+    </header>
+
+    <div class="card active" id="step1">
+        <h2>1. Dados do Processo</h2>
+        <label>Número do Processo</label><input type="text" id="proc_num">
+        <label>Vara / Juízo</label><input type="text">
+        <label>Natureza da Ação</label><input type="text">
+        <label>Requerente</label><input type="text">
+        <label>Requerido</label><input type="text">
+        <div class="nav-box"><button class="btn-prox" onclick="move(2)">Próximo ➔</button></div>
+    </div>
+
+    <div class="card" id="step2">
+        <h2>2. Identificação do Imóvel</h2>
+        <button class="btn-gps" onclick="getGPS()">📍 Capturar Endereço Atual</button>
+        <label>Endereço</label><textarea id="end" rows="2"></textarea>
+        
+        <label>Tipo do Imóvel</label>
+        <select onchange="checkO(this, 'o_tipo_imovel')">
+            <option>Casa</option><option>Apartamento</option><option>Terreno</option><option>Comercial</option><option>Outro</option>
+        </select>
+        <input type="text" id="o_tipo_imovel" class="hidden-input" placeholder="Especifique o tipo...">
+
+        <div class="grid-2">
+            <div><label>Matrícula (CRI)</label><input type="text"></div>
+            <div><label>Inscrição (IPTU)</label><input type="text"></div>
+        </div>
+
+        <label>Ocupação</label>
+        <select><option>Proprietário</option><option>Inquilino</option><option>Terceiros</option><option>Vago</option><option>Herdeiros</option></select>
+        
+        <label>Proprietário Atual</label><input type="text">
+
+        <div class="nav-box"><button class="btn-volt" onclick="move(1)">Voltar</button><button class="btn-prox" onclick="move(3)">Próximo ➔</button></div>
+    </div>
+
+    <div class="card" id="step3">
+        <h2>3. Condições do Imóvel</h2>
+        <label>Estado de Conservação</label>
+        <select><option>Excelente</option><option selected>Bom</option><option>Regular</option><option>Ruim</option><option>Abandonado</option></select>
+        
+        <label>Acesso ao Imóvel</label>
+        <select><option>Fácil</option><option>Parcialmente Restrito</option><option>Restrito</option><option>Impedido</option></select>
+
+        <label>Presença de Bens Móveis Relevantes?</label>
+        <div class="check-box"><input type="checkbox" id="tem_bens" onchange="document.getElementById('desc_bens').style.display=this.checked?'block':'none'"> <label style="margin:0">Sim</label></div>
+        <textarea id="desc_bens" style="display:none; margin-top:10px;" rows="3" placeholder="Descreva os bens..."></textarea>
+
+        <div class="nav-box"><button class="btn-volt" onclick="move(2)">Voltar</button><button class="btn-prox" onclick="move(4)">Próximo ➔</button></div>
+    </div>
+
+    <div class="card" id="step4">
+        <h2>4. Características Físicas</h2>
+        <div class="grid-2">
+            <div><label>Área Construída (m²)</label><input type="number" id="area_c"></div>
+            <div><label>Área Total (m²)</label><input type="number"></div>
+        </div>
+        <label>Origem da Área</label>
+        <select onchange="checkO(this, 'o_origem')">
+            <option>Estimada no Local</option><option>Conforme Mandado</option><option>Conforme Escritura</option><option>Outro</option>
+        </select>
+        <input type="text" id="o_origem" class="hidden-input" placeholder="Especifique a origem...">
+
+        <div class="grid-3">
+            <div><label>Pavimentos</label><input type="number"></div>
+            <div><label>Quartos</label><input type="number"></div>
+            <div><label>Salas</label><input type="number"></div>
+        </div>
+        <div class="grid-3">
+            <div><label>Banheiros</label><input type="number"></div>
+            <div><label>Cozinha</label><input type="number"></div>
+            <div><label>Garagem</label><input type="number"></div>
+        </div>
+        <label>Outros Cômodos</label><input type="text">
+
+        <label>Área Externa</label>
+        <div class="grid-2">
+            <div class="check-box"><input type="checkbox"> Quintal</div>
+            <div class="check-box"><input type="checkbox"> Jardim</div>
+            <div class="check-box"><input type="checkbox"> Varanda</div>
+            <div class="check-box"><input type="checkbox"> Terraço</div>
+        </div>
+
+        <h3>Materiais e Acabamentos</h3>
+        <label>Tipo de Construção</label>
+        <select onchange="checkO(this, 'o_const')">
+            <option>Alvenaria</option><option>Madeira</option><option>Estrutura Metálica</option><option>Pré-fabricado</option><option>Misto</option><option>Outro</option>
+        </select>
+        <input type="text" id="o_const" class="hidden-input">
+
+        <label>Tipo de Cobertura</label>
+        <select onchange="checkO(this, 'o_cob')">
+            <option>Laje</option><option>Telha Cerâmica</option><option>Fibrocimento</option><option>Telha Metálica</option><option>Embutido</option><option>Outro</option>
+        </select>
+        <input type="text" id="o_cob" class="hidden-input">
+
+        <div class="grid-2">
+            <div>
+                <label>Pisos</label>
+                <select onchange="checkO(this, 'o_piso')"><option>Cerâmica</option><option>Porcelanato</option><option>Madeira</option><option>Outro</option></select>
+                <input type="text" id="o_piso" class="hidden-input">
+            </div>
+            <div>
+                <label>Revestimento Interno</label>
+                <select onchange="checkO(this, 'o_rev')"><option>Pintura</option><option>Cerâmica</option><option>Outro</option></select>
+                <input type="text" id="o_rev" class="hidden-input">
+            </div>
+        </div>
+
+        <label>Esquadrias (Janelas/Portas)</label>
+        <div class="grid-2">
+            <select><option>Alumínio</option><option>Madeira</option><option>Ferro</option><option>PVC</option></select>
+            <select><option>Excelente</option><option>Bom</option><option>Regular</option><option>Ruim</option></select>
+        </div>
+
+        <label>Instalações Elétricas</label>
+        <div class="grid-2">
+            <select><option>Excelente</option><option>Bom</option><option>Regular</option><option>Ruim</option></select>
+            <select><option>Embutida</option><option>Aparente</option></select>
+        </div>
+
+        <label>Instalações Hidráulicas</label>
+        <div class="grid-2">
+            <select><option>Excelente</option><option>Bom</option><option>Regular</option><option>Ruim</option></select>
+            <select><option>Embutida</option><option>Aparente</option></select>
+        </div>
+
+        <h3>Conforto Ambiental</h3>
+        <div class="grid-3">
+            <div><label>Ventilação</label><select><option>Boa</option><option>Regular</option><option>Ruim</option></select></div>
+            <div><label>Iluminação</label><select><option>Boa</option><option>Regular</option><option>Ruim</option></select></div>
+            <div><label>Ruído</label><select><option>Baixo</option><option>Médio</option><option>Alto</option></select></div>
+        </div>
+
+        <div class="nav-box"><button class="btn-volt" onclick="move(3)">Voltar</button><button class="btn-prox" onclick="move(5)">Próximo ➔</button></div>
+    </div>
+
+    <div class="card" id="step5">
+        <h2>5. Infraestrutura e Serviços</h2>
+        <div class="grid-2">
+            <div class="check-box"><input type="checkbox" checked> Água</div>
+            <div class="check-box"><input type="checkbox" checked> Esgoto</div>
+            <div class="check-box"><input type="checkbox" checked> Energia Elétrica</div>
+            <div class="check-box"><input type="checkbox" checked> Transporte</div>
+        </div>
+        <label>Pavimentação da Via</label>
+        <select><option>Asfaltada</option><option>Calçamento</option><option>Terra</option></select>
+        
+        <label>Comércios e Serviços na Região</label>
+        <textarea rows="2"></textarea>
+
+        <div class="nav-box"><button class="btn-volt" onclick="move(4)">Voltar</button><button class="btn-prox" onclick="move(6)">Finalizar ➔</button></div>
+    </div>
+
+    <div class="card" id="step6">
+        <h2>6. Finalização</h2>
+        <label>Nome do Oficial (a)</label><input type="text" id="oj_n" value="Belizza Araújo">
+        <label>Matrícula</label><input type="text" id="oj_m">
+
+        <label style="margin-top:20px;">Assinatura do Depositário / Acompanhante</label>
+        <canvas id="can" class="canvas-sig"></canvas>
+        <button style="font-size:0.65em; background:none; color:#bbb; text-decoration:underline;" onclick="ctx.clearRect(0,0,can.width,can.height)">Limpar Assinatura</button>
+
+        <div class="export-grid">
+            <button class="btn-exp" style="background:#25d366" onclick="zap()">📲 WhatsApp</button>
+            <button class="btn-exp" style="background:#3498db" onclick="mail()">✉️ E-mail</button>
+            <button class="btn-exp" style="background:#e74c3c" onclick="window.print()">📄 Salvar PDF</button>
+        </div>
+        <div class="nav-box"><button class="btn-volt" onclick="move(5)">Voltar</button></div>
+    </div>
+</div>
+
+<script>
+    function move(n) { document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); window.scrollTo(0,0); }
+    
+    function checkO(sel, id) { document.getElementById(id).style.display = (sel.value === 'Outro' || sel.value === 'Outros') ? 'block' : 'none'; }
+
+    function getGPS() {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (p) => {
+                const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`);
+                const d = await r.json(); document.getElementById('end').value = d.display_name;
+            });
+        }
+    }
+
+    const can = document.getElementById('can'); const ctx = can.getContext('2d'); let d = false;
+    can.addEventListener('touchstart', (e) => { d=true; ctx.beginPath(); const p=gP(e); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+    can.addEventListener('touchmove', (e) => { if(!d) return; const p=gP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); });
+    can.addEventListener('touchend', () => d=false);
+    function gP(e) { const r = can.getBoundingClientRect(); return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }; }
+
+    function getResumo() {
+        return `🏛️ *AUTO DE VISTORIA*\n*Oficiala:* ${document.getElementById('oj_n').value}\n*Processo:* ${document.getElementById('proc_num').value}\n*Endereço:* ${document.getElementById('end').value}`;
+    }
+    function zap() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(getResumo())}`); }
+    function mail() { window.location.href = `mailto:?subject=Vistoria Judicial&body=${encodeURIComponent(getResumo().replace(/\*/g,''))}`; }
+</script>
+</body>
+</html>
